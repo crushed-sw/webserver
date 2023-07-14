@@ -4,7 +4,7 @@
 
 #include <unistd.h>
 
-Epoller::Epoller(int number) {
+Epoller::Epoller(int number, bool keepAlive) : keepAlive_(keepAlive) {
     if(number <= 0)
         throw std::runtime_error("Epoller(int number) the number must larger than zero");
 
@@ -18,7 +18,12 @@ Epoller::~Epoller() {
     fdCallBack_.clear();
 }
 
-void Epoller::addFd(int fd, uint32_t events, const epollTask& task) {
+void Epoller::addFd(int fd, uint32_t events, const epollTask& task, const epollTask& quit, bool isListen) {
+    addFd(fd, events, task, isListen);
+    quitCallBack_[fd] = quit;
+}
+
+void Epoller::addFd(int fd, uint32_t events, const epollTask& task, bool isListen) {
     epoll_event event = {};
     event.data.fd = fd;
     event.events = events;
@@ -27,6 +32,9 @@ void Epoller::addFd(int fd, uint32_t events, const epollTask& task) {
         throw std::runtime_error("epoll_ctl() to addFd error");
 
     fdCallBack_[fd] = task;
+
+    if(isListen)
+        listenFd_ = fd;
 }
 
 void Epoller::modFd(int fd, uint32_t events, const epollTask& task) {
@@ -51,6 +59,8 @@ void Epoller::modFd(int fd, const epollTask& task) {
 void Epoller::delFd(int fd) {
     if(epoll_ctl(epollFd_, EPOLL_CTL_DEL, fd, nullptr) < 0)
         throw std::runtime_error("epoll_ctl() to delFd error");
+    close(fd);
+    fdCallBack_.erase(fd);
 }
 
 int Epoller::wait(int timeout) {
@@ -68,10 +78,13 @@ void Epoller::run(int timeout) {
             uint32_t events = events_[i].events;
 
             auto iter = fdCallBack_.find(sockfd);
-            if(iter == fdCallBack_.end())
+            if(iter == fdCallBack_.end()) {
                 throw std::runtime_error("Epoller::fdCallBack error");
-            else
-                iter->second(sockfd, events);
+            } else {
+                iter->second();
+                if(!keepAlive_ && iter->first != listenFd_)
+                    delFd(iter->first);
+            }
         }
     }
 }

@@ -7,15 +7,11 @@
 #include "SyncQueue.hpp"
 #include "Timer.hpp"
 
-enum level {
-    INFO,
-    DEBUG,
-    WARN,
-    ERROR
-};
-
 class Log {
 public:
+    enum level {INFO, DEBUG, WARN, ERROR};
+    struct End {};
+
     Log(level lev);
     ~Log();
 
@@ -23,6 +19,7 @@ public:
     Log& operator<<(int i);
     Log& operator<<(double d);
     Log& operator<<(long int l);
+    Log& operator<<(End end);
 
     std::string levelToString(const level& lev);
     void update();
@@ -47,5 +44,6 @@ extern Log Info;
 extern Log Debug;
 extern Log Warn;
 extern Log Error;
+extern Log::End End;
 
 #endif //__LOG_HPP

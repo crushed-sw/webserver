@@ -7,6 +7,7 @@
 class Buffer {
 public:
     Buffer(int bufferNum = 1024);
+    Buffer(const std::string& str);
 
     std::string getLine();
     std::string getAll();

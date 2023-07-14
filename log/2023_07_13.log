@@ -1,0 +1,14 @@
+2023_07_13 22:13:05.767259 [info]  : client[5](127.0.0.1:50232) connected
+2023_07_13 22:13:05.767690 [info]  : client[9](127.0.0.1:50238) connected
+2023_07_13 22:13:05.783224 [info]  : client[5](127.0.0.1:50232) request /home/crushed/c/webserver/resource/index.html
+2023_07_13 22:13:05.945452 [info]  : client[9](127.0.0.1:50238) request /home/crushed/c/webserver/resource/index.css
+2023_07_13 22:13:10.405745 [info]  : client[5](127.0.0.1:50244) connected
+2023_07_13 22:13:10.406009 [info]  : client[9](127.0.0.1:50252) connected
+2023_07_13 22:13:10.419967 [info]  : client[5](127.0.0.1:50244) request /home/crushed/c/webserver/resource/demo
+2023_07_13 22:13:54.239898 [info]  : client[5](127.0.0.1:36358) connected
+2023_07_13 22:13:54.240782 [info]  : client[10](127.0.0.1:36372) connected
+2023_07_13 22:13:54.259892 [info]  : client[5](127.0.0.1:36358) request /home/crushed/c/webserver/resource/demo
+2023_07_13 22:13:54.361981 [info]  : client[10](127.0.0.1:36372) request /home/crushed/c/webserver/resource/css/style.css
+2023_07_13 22:16:15.231511 [info]  : client[5](127.0.0.1:37562) connected
+2023_07_13 22:16:15.232098 [info]  : client[10](127.0.0.1:37564) connected
+2023_07_13 22:16:15.257477 [info]  : client[5](127.0.0.1:37562) request /home/crushed/c/webserver/resource/demo

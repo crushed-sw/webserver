@@ -7,15 +7,15 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-Log Info(INFO);
-Log Debug(DEBUG);
-Log Warn(WARN);
-Log Error(ERROR);
+Log Info(Log::INFO);
+Log Debug(Log::DEBUG);
+Log Warn(Log::WARN);
+Log Error(Log::ERROR);
+Log::End End;
 
 SyncQueue<std::string> Log::queue_(500);
 
 Log::Log(level lev) {
-    last_ = 0;
     lev_ = lev;
     update();
 }

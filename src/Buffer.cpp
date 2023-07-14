@@ -2,6 +2,10 @@
 
 Buffer::Buffer(int numBuffer) : maxSize_(numBuffer), count_(0) {}
 
+Buffer::Buffer(const std::string& str) : Buffer(1024) {
+    bufferStream_ << str;
+}
+
 std::string Buffer::getLine() {
     std::string str = "";
     getline(bufferStream_, str);
