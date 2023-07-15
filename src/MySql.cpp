@@ -1,96 +1,53 @@
 #include "../include/MySql.hpp"
 
-#include <mysql/mysql.h>
-#include <stdexcept>
-#include <memory>
+MySql::MySql(const std::string& url, const std::string& user, const std::string& password) : MySql(url, user, password, "") {}
 
-MySql::MySql(const std::string& host, const std::string& user, const std::string& password, const std::string& database) : 
-            host_(host), user_(user), password_(password), mysql_(mysql_init(nullptr)), database_(database) {
-    mysql_real_connect(mysql_, host_.c_str(), user_.c_str(), password_.c_str(), database_.c_str(), 0, nullptr, 0);
+MySql::MySql(const std::string& url, const std::string& user, const std::string& password, const std::string& table)
+        : url_(url), user_(user), password_(password), table_(table) {
+    connect();
 }
 
-MySql::~MySql() {
-    mysql_close(mysql_);
+void MySql::connect() {
+    driver_ = sql::mysql::get_driver_instance();
+    conn_.reset(driver_->connect(url_, user_, password_));
 }
 
-void MySql::setDatabase(const std::string& str) {
-    database_ = str;
-    change();
+void MySql::setTable(const std::string& table) {
+    table_ = table;
 }
 
-void MySql::setTable(const std::string& str) {
-    table_ = str;
+void MySql::setDatabse(const std::string& database) {
+    database_ = database;
+    conn_->setSchema(database);
 }
 
-void MySql::change() {
-    mysql_close(mysql_);
-    mysql_real_connect(mysql_, host_.c_str(), user_.c_str(), password_.c_str(), database_.c_str(), 0, nullptr, 0);
-}
+MySql& MySql::query(const std::string& str) {
+    std::unique_lock<std::mutex> locker(mutex_);
+    if(!conn_)
+        connect();
 
-MySql& MySql::prepare(const std::string& query) {
-    stmt_ = mysql_stmt_init(mysql_);
-    if(!stmt_)
-        throw std::runtime_error("mysql_stmt_init() error");
-
-    if(mysql_stmt_prepare(stmt_, query.c_str(), query.length()))
-        throw std::runtime_error("mysql_stmt_prepare() error");
-
+    pstmt_.reset(conn_->prepareStatement(str));
     return *this;
 }
 
-MySql& MySql::bindParameter(const std::vector<paraType>& para) {
+MySql& MySql::update(const std::string& str) {
+    return query(str);
+}
+
+MySql& MySql::bind(const std::vector<std::string>& para) {
+    std::unique_lock<std::mutex> locker(mutex_);
     for(int i = 0; i != para.size(); ++i)
-        getVariant(para[i], parameter_[i]);
-    mysql_stmt_bind_param(stmt_, parameter_);
+        pstmt_->setString(i + 1, para[i]);
     return *this;
 }
 
-MySql& MySql::execute() {
-    if(mysql_stmt_execute(stmt_))
-        throw std::runtime_error("mysql_stmt_execute() error");
-    return *this;
+sql::ResultSet* MySql::executeQuery() {
+    std::unique_lock<std::mutex> locker(mutex_);
+    return pstmt_->executeQuery();
 }
 
-std::vector<std::vector<std::string>> MySql::getResult() {
-    result_ = mysql_stmt_result_metadata(stmt_);
-
-    int fieldNum = mysql_num_fields(result_);
-
-    std::vector<std::vector<std::string>> res;
-
-    MYSQL_ROW row = {};
-    while((row = mysql_fetch_row(result_)) != nullptr) {
-        std::vector<std::string> vec;
-        for(int i = 0; i != fieldNum; ++i) {
-            vec.emplace_back(row[i]);
-        }
-        res.push_back(vec);
-    }
-
-    mysql_free_result(result_);
-    mysql_stmt_close(stmt_);
-
-    return res;
+void MySql::executeUpdate() {
+    std::unique_lock<std::mutex> locker(mutex_);
+    pstmt_->executeUpdate();
 }
 
-void MySql::getVariant(const paraType& para, MYSQL_BIND& bind) {
-    if(auto value = std::get_if<int>(&para)) {
-        bind.buffer_type = MYSQL_TYPE_LONG;
-        bind.buffer = const_cast<void*>(static_cast<const void*>(value));
-    } else if(auto value = std::get_if<long long>(&para)) {
-        bind.buffer_type = MYSQL_TYPE_LONGLONG;
-        bind.buffer = const_cast<void*>(static_cast<const void*>(value));
-    } else if(auto value = std::get_if<float>(&para)) {
-        bind.buffer_type = MYSQL_TYPE_FLOAT;
-        bind.buffer = const_cast<void*>(static_cast<const void*>(value));
-    } else if(auto value = std::get_if<double>(&para)) {
-        bind.buffer_type = MYSQL_TYPE_DOUBLE;
-        bind.buffer = const_cast<void*>(static_cast<const void*>(value));
-    } else if(auto value = std::get_if<std::string>(&para)) {
-        bind.buffer_type = MYSQL_TYPE_STRING;
-        bind.buffer_length = value->length();
-        bind.buffer = const_cast<void*>(static_cast<const void*>(value));
-    } else {
-        throw std::runtime_error("parameter type error");
-    }
-}
