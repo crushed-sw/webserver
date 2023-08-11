@@ -5,6 +5,7 @@
 #include <map>
 
 #include "Buffer.hpp"
+#include "../thirdparty/json.hpp"
 
 class Request {
 public:
@@ -23,6 +24,7 @@ private:
     void parseRequest(std::string& str);
     void parseHeader(std::string& str);
     void parseParameter(std::string& str, char c);
+    void parseJson(std::string& str);
     void parseGetParameter();
     void clearStream();
 

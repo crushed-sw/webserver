@@ -17,6 +17,37 @@ HttpServer::HttpServer(int port, int threadNum, uint32_t listenEvent,  uint32_t 
     resource_ = std::string(buf, strlen(buf)) + "/resource";
 }
 
+HttpServer::HttpServer() {
+    ServerConfig conf = ServerApplication::getInstance().getConfig();
+    std::string port = conf.getValue("server_port");
+    std::string threadNum = conf.getValue("server_threadnum");
+    std::string listenEvent = conf.getValue("server_listenevent");
+    std::string connEvent = conf.getValue("server_connevent");
+
+    if(port == "") {
+        port = "9999";
+    }
+    port_ = atoi(port.c_str());
+
+    if(threadNum == "") {
+        threadNum = "4";
+    }
+    threadNum_ = atoi(threadNum.c_str());
+
+    if(listenEvent == "ET") {
+        listenEvent_ = EPOLLET;
+    }
+
+    if(connEvent == "ET") {
+        connEvent_ = EPOLLET;
+    }
+
+    model_ = Socket::ReactorModel;
+    char buf[512] = {};
+    getcwd(buf, sizeof(buf));
+    resource_ = std::string(buf, strlen(buf)) + "/resource";
+}
+
 void HttpServer::setResourceDir(const std::string& str) {
     resource_ = str;
 }
@@ -151,7 +182,7 @@ void HttpServer::quit(int fd, const sockaddr_in& addr) {}
 
 void HttpServer::logInit() {
     std::stringstream ss;
-    ss << "========== Server Init ==========\n";
+    ss << "========== Server Init  ==========\n";
     ss << "Port: " << port_ << ", threadNum: " << threadNum_ << "\n";
     ss << "ListenEvent: " << ((listenEvent_ & EPOLLET) ? "ET" : "LT") << ", ConnectEvent: " << ((connEvent_ & EPOLLET) ? "ET" : "LT") << "\n";
     ss << "Resource Directory: " << resource_ << "\n";

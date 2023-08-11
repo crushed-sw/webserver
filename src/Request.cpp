@@ -3,6 +3,8 @@
 #include <cstring>
 #include <algorithm>
 
+#include <iostream>
+
 Request::Request(Buffer& buffer) {
     std::string str = buffer.getLine();
     parseHeader(str);
@@ -11,7 +13,11 @@ Request::Request(Buffer& buffer) {
         str = buffer.getLine();
         if(str.empty() || str[0] == '\n')
             break;
-        parseRequest(str);
+
+        if(str[0] == '{')
+            parseJson(str);
+        else
+            parseRequest(str);
     }
 
     if(method_ == "GET") {
@@ -21,6 +27,7 @@ Request::Request(Buffer& buffer) {
             str = buffer.getLine();
             if(str.empty() || str[0] == '\n')
                 break;
+
             parseParameter(str, ':');
         }
     }
@@ -61,7 +68,16 @@ void Request::parseParameter(std::string& str, char c) {
     ss_ >> key >> value;
 
     if(!key.empty() && !value.empty())
-        parameters_[key] = value;
+        parameters_.insert({key, value});
+}
+
+void Request::parseJson(std::string& str) {
+    clearStream();
+
+    nlohmann::json json = nlohmann::json::parse(str);
+    for(auto iter = json.begin(); iter != json.end(); ++iter) {
+        parameters_.insert({iter.key(), iter.value()});
+    }
 }
 
 void Request::parseGetParameter() {

@@ -1,16 +1,13 @@
 cmake_minimum_required(VERSION 3.8)
 project(webserver)
 
-set(PROJECT_NAME webserver)
-
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED on)
+
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 include_directories(include)
+include_directories(example)
 
-aux_source_directory(. SRC_LIST)
-aux_source_directory(src SRC_LIST)
-
-add_executable(${PROJECT_NAME} ${SRC_LIST})
-
-target_link_libraries(${PROJECT_NAME} mysqlcppconn)
+add_subdirectory(src)
+add_subdirectory(example)

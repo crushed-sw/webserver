@@ -1,8 +1,25 @@
 #include "../include/MySqlPool.hpp"
 
-MySqlPool::MySqlPool(const std::string& url, const std::string& user, const std::string& password, int poolSize)
-            : url_(url), user_(user), password_(password), poolSize_(poolSize), pool_(poolSize) {
-    for(int i = 0; i != poolSize; ++i) {
+MySqlPool::MySqlPool() {
+    ServerConfig& conf = ServerApplication::getInstance().getConfig();
+    url_ = conf.getValue("sql_url");
+    user_ = conf.getValue("sql_user");
+    password_ = conf.getValue("sql_password");
+    std::string poolsize = conf.getValue("sql_poolsize").c_str();
+    
+    if(url_ == "" || user_ == "" || password_ == "") {
+        Error << "mysql config error";
+        exit(EXIT_FAILURE);
+    }
+
+    if(poolsize == "") {
+        poolsize = "5";
+    }
+
+    poolSize_ = atoi(poolsize.c_str());
+    pool_.setNum(poolSize_);
+
+    for(int i = 0; i != poolSize_; ++i) {
         MySql* mysql = new MySql(url_, user_, password_);
         pool_.put(mysql);
     }
@@ -16,6 +33,11 @@ MySqlPool::~MySqlPool() {
         if(mysql)
             delete mysql;
     }
+}
+
+MySqlPool& MySqlPool::getInstance() {
+    static MySqlPool pool;
+    return pool;
 }
 
 MySql* MySqlPool::getConnection() {

@@ -85,7 +85,7 @@ std::vector<T> MySql::executeQuery() {
     std::unique_ptr<sql::ResultSet> res(executeQuery());
     std::vector<T> ans;
 
-    int columns =  res->getMetaData()->getColumnCount();
+    int columns = res->getMetaData()->getColumnCount();
     while(res->next()) {
         std::vector<std::string> vec;
         for(int i = 1; i <= columns; ++i)
@@ -104,6 +104,8 @@ T MySql::executeQueryOne() {
     if(res->next()) {
         for(int i = 1; i <= columns; ++i)
             vec.emplace_back(res->getString(i));
+    } else {
+        return T();
     }
     return T(vec);
 }
@@ -170,8 +172,6 @@ void MySql::insert(T& item) {
             ss << ", ?";
     }
     ss << ")";
-
-    std::cout << ss.str() << std::endl;
 
     query(ss.str()).bind(vec).executeUpdate();
 }

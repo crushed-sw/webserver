@@ -8,7 +8,9 @@
 template <typename T>
 class SyncQueue {
 public:
-    SyncQueue(int num);
+    SyncQueue(int num = 4);
+
+    void setNum(int num);
 
     void put(const T& t);
     void put(T&& t);
@@ -35,6 +37,11 @@ private:
 
 template <typename T>
 SyncQueue<T>::SyncQueue(int num) : maxSize_(num), stop_(false) {}
+
+template <typename T>
+void SyncQueue<T>::setNum(int num) {
+    maxSize_ = num;
+}
 
 template <typename T>
 void SyncQueue<T>::put(const T& t) {

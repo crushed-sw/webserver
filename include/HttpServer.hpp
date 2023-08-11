@@ -1,10 +1,12 @@
 #ifndef __HTTP_SERVER_HPP
 #define __HTTP_SERVER_HPP
 
+#include "ServerApplication.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
 #include "Socket.hpp"
 
+#include <string>
 #include <fstream>
 #include <functional>
 
@@ -12,7 +14,8 @@ using httpTask = std::function<std::string(Request& request, Response& response)
 
 class HttpServer {
 public:
-    HttpServer(int port = 9999, int threadNum = 4, uint32_t listenEvent = EPOLLET, uint32_t connEvent = EPOLLET, Socket::Model model = Socket::ReactorModel);
+    HttpServer(int port, int threadNum, uint32_t listenEvent, uint32_t connEvent, Socket::Model model);
+    HttpServer();
 
     void setResourceDir(const std::string& str);
     void addInterceptor(const httpTask& interceptor);
