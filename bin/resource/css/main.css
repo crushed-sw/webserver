@@ -1,0 +1,134 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: linear-gradient(rgb(145, 170, 207), rgb(145, 170, 207));
+    --fg: #17181c;
+    --primary1: #255ff4;
+    --primary2: #5583f6;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: var(--bg);
+}
+
+.clock {
+    width: 350px;
+    height: 350px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background-color: rgba(250, 200, 200, .9);
+    /* 添加阴影效果 */
+    box-shadow: 0 -1em 1em rgba(0, 0, 0, 0.3) inset,
+        0 0.5em 1em rgba(255, 255, 255, 0.1) inset,
+        0 -0.5em 1em rgba(255, 255, 255, 0.2),
+        0 1em 1em rgba(0, 0, 0, 0.3);
+}
+
+.clock:before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    z-index: 100;
+    box-shadow: 0 0.1em 0.1em rgba(255, 255, 255, 0.3) inset,
+        0 -0.1em 0.1em rgba(0, 0, 0, 0.3) inset,
+        0 0.2em 0.2em rgba(0, 0, 0, 0.3);
+}
+
+.clock:after {
+    content: '';
+    display: block;
+    border-radius: 50%;
+    position: absolute;
+    box-shadow: 0 0 1em 0.5em rgb(0, 0, 0) inset,
+        0 -0.5em 1em 0.5em rgba(0, 0, 0, 0.8);
+    width: 250px;
+    height: 250px;
+    background-color: rgb(226, 214, 214);
+    z-index: -99;
+
+}
+
+.clock .hour,
+.clock .min,
+.clock .sec {
+    position: absolute;
+}
+
+.clock .hour,
+.hr {
+    width: 160px;
+    height: 160px;
+}
+
+.clock .min,
+.mn {
+    width: 190px;
+    height: 190px;
+}
+
+.clock .sec,
+.sc {
+    width: 230px;
+    height: 230px;
+}
+
+.hr,
+.mn,
+.sc {
+    display: flex;
+    justify-content: center;
+    position: absolute;
+}
+
+.hr:before,
+.mn:before,
+.sc:before {
+    box-shadow: 2px -0.6px 2px rgba(255, 255, 255, 0.1) inset,
+        2px 0.5px 2px rgba(0, 0, 0, 0.2) inset,
+        -3px 10px 10px rgba(0, 0, 0, 0.3);
+}
+
+.hr:before {
+    content: '';
+    width: 8px;
+    height: 80px;
+    z-index: 10;
+    border-radius: 6px 6px 0 0;
+    background: var(--primary1);
+    border-radius: 0.5em;
+    width: 18px;
+    height: 60px;
+}
+
+.mn:before {
+    content: '';
+    width: 4px;
+    height: 90px;
+    z-index: 11;
+    border-radius: 6px 6px 0 0;
+    background: var(--primary2);
+    border-radius: 0.4em;
+    width: 13px;
+    height: 70px;
+}
+
+.sc:before {
+    content: '';
+    z-index: 12;
+    background: var(--fg);
+    border-radius: 0.3em;
+    width: 10px;
+    height: 90px;
+}
